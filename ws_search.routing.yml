@@ -1,0 +1,17 @@
+ws_search.json_api_searchpage:
+  path: '/search_json'
+  defaults:
+    _controller: '\Drupal\ws_search\Controller\JsonApiSearchController::response'
+    _title: 'Search JSON'
+  methods:  [GET]
+  requirements:
+    _permission: 'access content'
+ws_search.settings_form:
+  path: '/admin/config/ws_search/settings'
+  defaults:
+    _form: '\Drupal\ws_search\Form\SettingsForm'
+    _title: 'Search JSON Settings'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
