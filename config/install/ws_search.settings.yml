@@ -1,0 +1,6 @@
+entity_type: node
+out_count: 8
+sort: default
+fields: 'title; url'
+fields_view: teaser
+link_more: '/search'
