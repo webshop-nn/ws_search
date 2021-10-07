@@ -154,15 +154,19 @@ class JsonApiSearchController {
 						if (isset($fields[$type][$display])) continue;
 						if ($field == "url")
 							$render[$display] = $entity->toUrl()->toString();
-						else
-							$render[$display] = $renderer->renderRoot($entity->get($field)->view($display_mode));
+						else {
+							$render[$display] = $entity->get($field)->view($display_mode);
+							$render[$display] = $renderer->renderRoot($render[$display]);
+						}
 					}
 					if (isset($fields[$type]))
 						foreach ($fields[$type] as $display => $field) {
 							if ($field == "url")
 								$render[$display] = $entity->toUrl()->toString();
-							else
-								$render[$display] = $renderer->renderRoot($entity->get($field)->view($display_mode));
+							else {
+								$render[$display] = $entity->get($field)->view($display_mode);
+								$render[$display] = $renderer->renderRoot($render[$display]);
+							}
 						}
 					$out["prompts"][] = $render;
 				}
