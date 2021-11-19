@@ -24,7 +24,7 @@ class JsonApiSearchController {
 		$entity_subtypes_raw = $config->get("material_type");
 		if (isset($entity_subtypes_raw))
 			foreach (explode(";",$entity_subtypes_raw) as $subtype) {
-				if (strlen($subtype) <= 0 || $subtype === " ") continue;
+				if (strlen(trim($subtype)) <= 0) continue;
 				$subtype = explode(":",$subtype);
 				if (count($subtype) == 2) {
 					$entity_subtypes[trim($subtype[0])][] = trim($subtype[1]);
@@ -33,6 +33,20 @@ class JsonApiSearchController {
 				}
 			}
 		unset($entity_subtypes_raw);
+
+		$filtradeFields = [];
+		$filtradeFields_raw = $config->get("filtrade_fields");
+		if (isset($filtradeFields_raw))
+			foreach (explode(";",$filtradeFields_raw) as $field) {
+				if (strlen(trim($field)) <= 0) continue;
+				$field = explode(":",$field);
+				if (count($field) == 2) {
+					$filtradeFields[trim($field[0])][] = trim($field[1]);
+				} else {
+					$filtradeFields["@"][] = trim($field[0]);
+				}
+			}
+		unset($filtradeFields_raw);
 
 		$fields = [];
 		$fields_raw = $config->get("fields");
@@ -80,7 +94,22 @@ class JsonApiSearchController {
 			$remainder = 0;
 			foreach ($entity_types as $type) {
 				$query = \Drupal::entityQuery($type);
-				$query->condition('title', '%'.$query_str.'%', 'LIKE');
+
+				// Фильтр по полям
+				$group = $query->orConditionGroup();
+
+				if (isset($filtradeFields[$type]))
+					foreach ($filtradeFields[$type] as $field) {
+						$group->condition($field, '%'.$query_str.'%', 'LIKE');
+					}
+				elseif (isset($filtradeFields["@"]))
+					foreach ($filtradeFields["@"] as $field) {
+						$group->condition($field, '%'.$query_str.'%', 'LIKE');
+					}
+				else
+					$group->condition('title', '%'.$query_str.'%', 'LIKE');
+
+				$query->condition($group);
 
 				// Конфиг
 				$count = $config->get("out_count");

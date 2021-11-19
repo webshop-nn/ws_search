@@ -47,6 +47,12 @@ class SettingsForm extends ConfigFormBase {
 			'#description'   => $this->t('Фильтр по типу материала. Можно несколько, разделяя точкой с запятой. Если выбрано несколько типов сущностей, можно разделять типы: "node:article; commerce_product:default"'),
 			'#default_value' => $config->get('material_type'),
 		];
+		$form['filtrade_fields'] = [
+			'#type'          => 'textfield',
+			'#title'         => $this->t('Поля поиска'),
+			'#description'   => $this->t('Поля по которым производится поиск. Можно несколько, разделяя точкой с запятой. Если выбрано несколько типов сущностей, можно разделять типы: "title; commerce_product:field_subtitle"'),
+			'#default_value' => $config->get('filtrade_fields'),
+		];
 		$form['out_count'] = [
 			'#type'          => 'number',
 			'#title'         => $this->t('Количество выводимых объектов'),
@@ -112,6 +118,7 @@ class SettingsForm extends ConfigFormBase {
 		$config = $this->config('ws_search.settings');
 		$config->set('entity_type',     $form_state->getValue('entity_type'))->save();
 		$config->set('material_type',   $form_state->getValue('material_type'))->save();
+		$config->set('filtrade_fields', $form_state->getValue('filtrade_fields'))->save();
 		$config->set('out_count',       $form_state->getValue('out_count'))->save();
 		$config->set('button_not_show', $form_state->getValue('button_not_show'))->save();
 		$config->set('sort',            $form_state->getValue('sort'))->save();

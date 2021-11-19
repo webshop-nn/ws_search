@@ -1,4 +1,5 @@
 entity_type: node
+filtrade_fields: title
 out_count: 8
 sort: default
 fields: 'title; url'
