@@ -183,7 +183,14 @@ class JsonApiSearchController {
 						if (isset($fields[$type][$display])) continue;
 						if ($field == "url")
 							$render[$display] = $entity->toUrl()->toString();
-						else {
+						elseif (strpos($field,"variation.") === 0) {
+							$field = substr($field, 10);
+							if ($entity->get("variations")->count() > 0) {
+								$variation = $entity->get("variations")->get(0)->entity;
+								$render[$display] = $variation->get($field)->view($display_mode);
+								$render[$display] = $renderer->renderRoot($render[$display]);
+							}
+						} else {
 							$render[$display] = $entity->get($field)->view($display_mode);
 							$render[$display] = $renderer->renderRoot($render[$display]);
 						}
@@ -192,7 +199,14 @@ class JsonApiSearchController {
 						foreach ($fields[$type] as $display => $field) {
 							if ($field == "url")
 								$render[$display] = $entity->toUrl()->toString();
-							else {
+							elseif (strpos($field,"variation.") === 0) {
+								$field = substr($field, 10);
+								if ($entity->get("variations")->count() > 0) {
+									$variation = $entity->get("variations")->get(0)->entity;
+									$render[$display] = $variation->get($field)->view($display_mode);
+									$render[$display] = $renderer->renderRoot($render[$display]);
+								}
+							} else {
 								$render[$display] = $entity->get($field)->view($display_mode);
 								$render[$display] = $renderer->renderRoot($render[$display]);
 							}
