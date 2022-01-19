@@ -188,11 +188,11 @@ class JsonApiSearchController {
 							if ($entity->get("variations")->count() > 0) {
 								$variation = $entity->get("variations")->get(0)->entity;
 								$render[$display] = $variation->get($field)->view($display_mode);
-								$render[$display] = $renderer->renderRoot($render[$display]);
+								$render[$display] = trim($renderer->renderRoot($render[$display]));
 							}
 						} else {
 							$render[$display] = $entity->get($field)->view($display_mode);
-							$render[$display] = $renderer->renderRoot($render[$display]);
+							$render[$display] = trim($renderer->renderRoot($render[$display]));
 						}
 					}
 					if (isset($fields[$type]))
@@ -204,11 +204,11 @@ class JsonApiSearchController {
 								if ($entity->get("variations")->count() > 0) {
 									$variation = $entity->get("variations")->get(0)->entity;
 									$render[$display] = $variation->get($field)->view($display_mode);
-									$render[$display] = $renderer->renderRoot($render[$display]);
+									$render[$display] = trim($renderer->renderRoot($render[$display]));
 								}
 							} else {
 								$render[$display] = $entity->get($field)->view($display_mode);
-								$render[$display] = $renderer->renderRoot($render[$display]);
+								$render[$display] = trim($renderer->renderRoot($render[$display]));
 							}
 						}
 					$out["prompts"][] = $render;
