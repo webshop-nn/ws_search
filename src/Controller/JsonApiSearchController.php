@@ -178,44 +178,53 @@ class JsonApiSearchController {
 				// Добавляем полученные материалы в вывод
 				$entitys = \Drupal::entityTypeManager()->getStorage($type)->loadMultiple($entitys);
 				foreach ($entitys as $entity) {
-					$render = [];
-					foreach ($fields["@"] as $display => $field) {
-						if (isset($fields[$type][$display])) continue;
-						if ($field == "url")
-							$render[$display] = $entity->toUrl()->toString();
-						elseif (strpos($field,"variation.") === 0) {
-							$field = substr($field, 10);
-							if ($entity->get("variations")->count() > 0) {
-								$variation = $entity->get("variations")->get(0)->entity;
-								$render[$display] = $variation->get($field)->view($display_mode);
-								$render[$display] = trim($renderer->renderRoot($render[$display]));
-							}
-						} else {
-							$render[$display] = $entity->get($field)->view($display_mode);
-							$render[$display] = trim($renderer->renderRoot($render[$display]));
-						}
-					}
+					$render = $this->renderFields($fields["@"],$entity,$renderer,$display_mode,$type);
+
 					if (isset($fields[$type]))
-						foreach ($fields[$type] as $display => $field) {
-							if ($field == "url")
-								$render[$display] = $entity->toUrl()->toString();
-							elseif (strpos($field,"variation.") === 0) {
-								$field = substr($field, 10);
-								if ($entity->get("variations")->count() > 0) {
-									$variation = $entity->get("variations")->get(0)->entity;
-									$render[$display] = $variation->get($field)->view($display_mode);
-									$render[$display] = trim($renderer->renderRoot($render[$display]));
-								}
-							} else {
-								$render[$display] = $entity->get($field)->view($display_mode);
-								$render[$display] = trim($renderer->renderRoot($render[$display]));
-							}
-						}
+						array_merge($render, $this->renderFields($fields[$type],$entity,$renderer,$display_mode));
+
 					$out["prompts"][] = $render;
 				}
 			}
 		}
 
 		return new JsonResponse($out);
+	}
+	/**
+	 * Сгенерировать render array для полей
+	 * @param $fields - Масив с полями
+	 * @param $entity - Сущность, у которой взяты поля
+	 * @param $display_mode - Режим отображения полей
+	 * @param $type - если определенное поле нужно вывести конкретно этой сузности, то вызовется сщтештгу
+	 */
+	private function renderFields($fields,$entity,$renderer,$display_mode,$type = null) {
+		$render = [];
+		foreach ($fields as $display => $field) {
+
+			$fieldArr = explode(".",$field,3);
+			$field = $fieldArr[0];
+
+			if ($type !== null && isset($fields[$type][$display])) continue;
+			if ($field == "url")
+				$render[$display] = $entity->toUrl()->toString();
+			elseif (strpos($field,"variation.") === 0) {
+				$field = substr($field, 10);
+				if ($entity->get("variations")->count() > 0) {
+					$variation = $entity->get("variations")->get(0)->entity;
+					$render[$display] = $variation->get($field)->view($display_mode);
+					if (isset($fieldArr[1]) && is_numeric($fieldArr[1])) {
+						$render[$display] = $render[$display][(int)$fieldArr[1]];
+					}
+					$render[$display] = trim($renderer->renderRoot($render[$display]));
+				}
+			} else {
+				$render[$display] = $entity->get($field)->view($display_mode);
+				if (isset($fieldArr[1]) && is_numeric($fieldArr[1])) {
+					$render[$display] = $render[$display][(int)$fieldArr[1]];
+				}
+				$render[$display] = trim($renderer->renderRoot($render[$display]));
+			}
+		}
+		return $render;
 	}
 }
